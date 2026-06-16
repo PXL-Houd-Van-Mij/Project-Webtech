@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 session_start();
 require "db.php";
 
@@ -18,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $ingredienten = trim($_POST["ingredienten"]);
     $bereiding = trim($_POST["bereiding"]);
 
-    // Afbeelding uploaden (optioneel)
+    // Afbeelding uploaden
     $imagePath = null;
 
     if (!empty($_FILES["image"]["name"])) {
@@ -40,7 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             if (move_uploaded_file($_FILES["image"]["tmp_name"], $targetFile)) {
                 $imagePath = $targetFile;
             } else {
-                $error = "Afbeelding uploaden mislukt.";
+                $error = "Afbeelding uploaden mislukt. (move_uploaded_file faalt)";
             }
         }
     }
@@ -51,12 +54,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             VALUES (?, ?, ?, ?, ?, 0, 0)
         ");
 
+        if (!$stmt) {
+            die("SQL fout: " . $conn->error);
+        }
+
         $stmt->bind_param("sssss", $titel, $beschrijving, $ingredienten, $bereiding, $imagePath);
 
         if ($stmt->execute()) {
             $success = "Recept succesvol toegevoegd!";
         } else {
-            $error = "Er ging iets mis. Probeer opnieuw.";
+            $error = "Database fout: " . $stmt->error;
         }
     }
 }
@@ -108,6 +115,5 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     Gemaakt door Tom, Luuk en Stef.
 </footer>
 
-<script src="script.js?v=1"></script>
 </body>
 </html>
