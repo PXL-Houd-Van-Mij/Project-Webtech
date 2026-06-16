@@ -14,6 +14,18 @@ if (!isset($_SESSION["user"])) {
     exit;
 }
 
+// Haal user_id op via email uit sessie
+$userQuery = $conn->prepare("SELECT id FROM users WHERE email = ?");
+$userQuery->bind_param("s", $_SESSION["user"]);
+$userQuery->execute();
+$userResult = $userQuery->get_result();
+
+if ($userResult->num_rows === 0) {
+    die("Gebruiker niet gevonden.");
+}
+
+$user_id = $userResult->fetch_assoc()["id"];
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $titel = trim($_POST["titel"]);
@@ -43,22 +55,29 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             if (move_uploaded_file($_FILES["image"]["tmp_name"], $targetFile)) {
                 $imagePath = $targetFile;
             } else {
-                $error = "Afbeelding uploaden mislukt. (move_uploaded_file faalt)";
+                $error = "Afbeelding uploaden mislukt.";
             }
         }
     }
 
     if (!$error) {
         $stmt = $conn->prepare("
-            INSERT INTO recepten (titel, beschrijving, ingredienten, bereiding, afbeelding, likes, specialiteit)
-            VALUES (?, ?, ?, ?, ?, 0, 0)
+            INSERT INTO recepten (titel, beschrijving, ingredienten, bereiding, afbeelding, likes, specialiteit, user_id)
+            VALUES (?, ?, ?, ?, ?, 0, 0, ?)
         ");
 
         if (!$stmt) {
             die("SQL fout: " . $conn->error);
         }
 
-        $stmt->bind_param("sssss", $titel, $beschrijving, $ingredienten, $bereiding, $imagePath);
+        $stmt->bind_param("sssssi", 
+            $titel, 
+            $beschrijving, 
+            $ingredienten, 
+            $bereiding, 
+            $imagePath, 
+            $user_id
+        );
 
         if ($stmt->execute()) {
             $success = "Recept succesvol toegevoegd!";
