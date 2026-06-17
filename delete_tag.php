@@ -11,3 +11,4 @@ $conn->query("DELETE FROM tags WHERE id = $id");
 
 header("Location: admin_tags.php");
 exit;
+// einde T
