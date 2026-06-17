@@ -60,4 +60,4 @@ $specialiteiten = $conn->query("SELECT * FROM specialiteiten ORDER BY naam ASC")
 
 </body>
 </html>
-// einde T
+// IOT
