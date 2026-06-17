@@ -22,7 +22,6 @@ $user_id = $userQuery->get_result()->fetch_assoc()["id"];
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    // Null-safe POST values
     $titel = trim($_POST["titel"] ?? "");
     $beschrijving = trim($_POST["beschrijving"] ?? "");
     $ingredienten = trim($_POST["ingredienten"] ?? "");
@@ -31,7 +30,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $tools = trim($_POST["tools"] ?? "");
     $personen = intval($_POST["personen"] ?? 0);
 
-    // Tag null-safe
     $tag_id = isset($_POST["tag"]) ? intval($_POST["tag"]) : null;
 
     if ($tag_id === null) {
@@ -65,14 +63,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if (!$error) {
 
-        // Recept opslaan
         $stmt = $conn->prepare("
-            INSERT INTO recepten 
+            INSERT INTO recepten
             (titel, beschrijving, ingredienten, bereiding, afbeelding, tijd, tools, personen, likes, tag_id, user_id)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)
         ");
 
-        // ✔ Correct aantal parameters (10 variabelen)
         $stmt->bind_param("sssssisiii",
             $titel, $beschrijving, $ingredienten, $bereiding, $imagePath,
             $tijd, $tools, $personen,
@@ -112,8 +108,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recept Uploaden – Receptify</title>
-    <link rel="stylesheet" href="style.css?v=105">
+    <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 
@@ -123,8 +120,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <div class="form-container">
 
-    <?php if ($error): ?><p style="color:red;"><?= htmlspecialchars($error) ?></p><?php endif; ?>
-    <?php if ($success): ?><p style="color:green;"><?= htmlspecialchars($success) ?></p><?php endif; ?>
+    <?php if ($error): ?><p style="color:red; font-weight:600; margin-bottom:10px;"><?= htmlspecialchars($error) ?></p><?php endif; ?>
+    <?php if ($success): ?><p style="color:green; font-weight:600; margin-bottom:10px;"><?= htmlspecialchars($success) ?></p><?php endif; ?>
 
     <form method="POST" enctype="multipart/form-data">
 
@@ -170,8 +167,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <?php endwhile; ?>
         </div>
 
-        <!-- SUBTAGS -->
-        <label style="font-weight:600;">Ingrediënten:</label>
+        <!-- SUBTAGS / INGREDIËNTEN -->
+        <label style="font-weight:600;">Ingrediënten (selecteer):</label>
         <div class="tag-box">
         <?php
         $subs = $conn->query("SELECT * FROM subtags ORDER BY naam ASC");
@@ -195,6 +192,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <footer>Gemaakt door Tom, Luuk en Stef.</footer>
 
+<script src="script.js?v=2"></script>
 </body>
 </html>
-// einde T
+// IOT
