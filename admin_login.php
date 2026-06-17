@@ -1,14 +1,21 @@
 <?php
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 session_start();
 
+// Zorg dat normale user-sessie niet stoort
+unset($_SESSION["user"]);
+
 $ADMIN_EMAIL = "admin@receptify.com";
-$ADMIN_PASS = "SuperAdmin123"; // verander dit!
+$ADMIN_PASS = "Admin123"; // verander dit!
 
 $error = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $email = $_POST["email"];
-    $pass = $_POST["password"];
+
+    $email = trim($_POST["email"]);
+    $pass = trim($_POST["password"]);
 
     if ($email === $ADMIN_EMAIL && $pass === $ADMIN_PASS) {
         $_SESSION["admin"] = true;
@@ -19,7 +26,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -46,3 +52,4 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 </body>
 </html>
+// einde T
