@@ -12,4 +12,4 @@ $conn->query("DELETE FROM reports WHERE id = $id");
 
 header("Location: admin_panel.php");
 exit;
-// einde T
+// IOT
