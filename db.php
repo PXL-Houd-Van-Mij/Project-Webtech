@@ -18,3 +18,4 @@ if (!$conn) {
     die("Database fout: " . mysqli_connect_error());
 }
 ?>
+// einde T
