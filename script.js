@@ -21,6 +21,29 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    // NAVBAR LINK HOVER
+    document.querySelectorAll(".nav-links a").forEach(link => {
+        link.addEventListener("mouseenter", () => {
+            link.style.opacity = "0.8";
+            link.style.transform = "translateY(-2px)";
+        });
+
+        link.addEventListener("mouseleave", () => {
+            link.style.opacity = "1";
+            link.style.transform = "translateY(0)";
+        });
+    });
+
+    // LOGO BOUNCE EFFECT
+    const logo = document.querySelector(".logo");
+    if (logo) {
+        logo.addEventListener("click", () => {
+            logo.style.transition = "transform 0.25s cubic-bezier(.34,1.56,.64,1)";
+            logo.style.transform = "scale(1.25)";
+            setTimeout(() => logo.style.transform = "scale(1)", 250);
+        });
+    }
+
     // INSTAGRAM-LIKE TOGGLE
     const likeBtn = document.getElementById("like-btn");
     const likeCount = document.getElementById("like-count");
@@ -41,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (data.status === "liked") {
                     likeBtn.classList.add("active");
                     likeCount.textContent = (count + 1) + " likes";
-                } 
+                }
                 else if (data.status === "unliked") {
                     likeBtn.classList.remove("active");
                     likeCount.textContent = (count - 1) + " likes";
@@ -50,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // DRAG & DROP + PREVIEW + COMPRESSIE
+    // DRAG & DROP + PREVIEW VOOR AFBEELDING UPLOAD
     const dropZone = document.getElementById("drop-zone");
     const fileInput = document.getElementById("fileInput");
     const preview = document.getElementById("preview");
@@ -71,9 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
         dropZone.addEventListener("drop", (e) => {
             e.preventDefault();
             dropZone.classList.remove("dragover");
-
-            const file = e.dataTransfer.files[0];
-            handleImage(file);
+            handleImage(e.dataTransfer.files[0]);
         });
 
         fileInput.addEventListener("change", () => {
@@ -81,7 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         function handleImage(file) {
-            if (!file.type.startsWith("image/")) return;
+            if (!file || !file.type.startsWith("image/")) return;
 
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -91,22 +112,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 img.onload = () => {
                     const canvas = document.createElement("canvas");
                     const ctx = canvas.getContext("2d");
-
                     const maxWidth = 900;
                     const scale = maxWidth / img.width;
-
                     canvas.width = maxWidth;
                     canvas.height = img.height * scale;
-
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
                     canvas.toBlob((blob) => {
                         const compressedFile = new File([blob], file.name, { type: "image/jpeg" });
-
                         const dataTransfer = new DataTransfer();
                         dataTransfer.items.add(compressedFile);
                         fileInput.files = dataTransfer.files;
-
                         preview.src = URL.createObjectURL(compressedFile);
                         preview.style.display = "block";
                     }, "image/jpeg", 0.7);
@@ -117,4 +133,4 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 });
-// einde T
+// IOT
