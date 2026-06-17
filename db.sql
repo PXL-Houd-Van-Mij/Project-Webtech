@@ -6,24 +6,8 @@
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL
-);
-
--- RECEPTEN
-CREATE TABLE IF NOT EXISTS recepten (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    titel VARCHAR(255) NOT NULL,
-    beschrijving TEXT,
-    ingredienten TEXT,
-    bereiding TEXT,
-    tijd INT DEFAULT 0,
-    tools VARCHAR(255),
-    personen INT DEFAULT 1,
-    tag_id INT DEFAULT NULL,
-    likes INT DEFAULT 0,
-    afbeelding VARCHAR(255) DEFAULT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    password VARCHAR(255) NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 -- TAGS (hoofdcategorie)
@@ -44,6 +28,24 @@ CREATE TABLE IF NOT EXISTS subtags (
     naam VARCHAR(255) NOT NULL UNIQUE
 );
 
+-- RECEPTEN
+CREATE TABLE IF NOT EXISTS recepten (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    titel VARCHAR(255) NOT NULL,
+    beschrijving TEXT,
+    ingredienten TEXT,
+    bereiding TEXT,
+    tijd INT DEFAULT 0,
+    tools VARCHAR(255),
+    personen INT DEFAULT 1,
+    tag_id INT DEFAULT NULL,
+    likes INT DEFAULT 0,
+    afbeelding VARCHAR(255) DEFAULT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 -- KOPPELTABEL: RECEPT → SPECIALITEITEN
 CREATE TABLE IF NOT EXISTS recept_specialiteiten (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -60,6 +62,15 @@ CREATE TABLE IF NOT EXISTS recept_subtags (
     subtag_id INT NOT NULL,
     FOREIGN KEY (recept_id) REFERENCES recepten(id) ON DELETE CASCADE,
     FOREIGN KEY (subtag_id) REFERENCES subtags(id) ON DELETE CASCADE
+);
+
+-- KOPPELTABEL: RECEPT → TAGS (voor tag.php filter)
+CREATE TABLE IF NOT EXISTS recept_tags (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    recept_id INT NOT NULL,
+    tag_id INT NOT NULL,
+    FOREIGN KEY (recept_id) REFERENCES recepten(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
 );
 
 -- LIKES
@@ -81,4 +92,13 @@ CREATE TABLE IF NOT EXISTS favorieten (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (recept_id) REFERENCES recepten(id) ON DELETE CASCADE
 );
-// einde T
+
+-- RAPPORTEN (gebruikt door admin_panel.php)
+CREATE TABLE IF NOT EXISTS reports (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    recept_id INT NOT NULL,
+    reason VARCHAR(255) DEFAULT 'Automatisch rapport',
+    reported_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (recept_id) REFERENCES recepten(id) ON DELETE CASCADE
+);
+// IOT
