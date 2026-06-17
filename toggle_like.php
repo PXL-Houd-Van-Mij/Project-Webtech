@@ -42,4 +42,4 @@ if ($liked) {
 
 header("Location: recept.php?id=$recept_id");
 exit;
-// einde T
+// IOT
