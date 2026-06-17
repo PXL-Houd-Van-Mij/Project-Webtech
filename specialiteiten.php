@@ -50,3 +50,4 @@ $q = mysqli_query($conn, "SELECT * FROM recepten WHERE specialiteit = 1 ORDER BY
 <script src="script.js?v=1"></script>
 </body>
 </html>
+// einde T
