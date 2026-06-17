@@ -54,3 +54,4 @@ $del->execute();
 // Redirect
 header("Location: index.php?deleted=1");
 exit;
+// einde T
