@@ -81,3 +81,4 @@ CREATE TABLE IF NOT EXISTS favorieten (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (recept_id) REFERENCES recepten(id) ON DELETE CASCADE
 );
+// einde T
