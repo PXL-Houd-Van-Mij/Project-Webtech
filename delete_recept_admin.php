@@ -35,4 +35,4 @@ $del->execute();
 // Redirect terug naar admin panel
 header("Location: admin_panel.php?deleted=1");
 exit;
-// einde T
+// IOT
