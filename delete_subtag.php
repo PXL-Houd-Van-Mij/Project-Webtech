@@ -11,3 +11,4 @@ $conn->query("DELETE FROM subtags WHERE id = $id");
 
 header("Location: admin_subtags.php");
 exit;
+// einde T
