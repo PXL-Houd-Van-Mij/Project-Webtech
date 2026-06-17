@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 session_start();
 require "db.php";
 
@@ -11,6 +14,18 @@ if (!isset($_SESSION["user"])) {
     exit;
 }
 
+// Haal user_id op via email uit sessie
+$userQuery = $conn->prepare("SELECT id FROM users WHERE email = ?");
+$userQuery->bind_param("s", $_SESSION["user"]);
+$userQuery->execute();
+$userResult = $userQuery->get_result();
+
+if ($userResult->num_rows === 0) {
+    die("Gebruiker niet gevonden.");
+}
+
+$user_id = $userResult->fetch_assoc()["id"];
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $titel = trim($_POST["titel"]);
@@ -18,7 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $ingredienten = trim($_POST["ingredienten"]);
     $bereiding = trim($_POST["bereiding"]);
 
-    // Afbeelding uploaden (optioneel)
+    // Afbeelding uploaden
     $imagePath = null;
 
     if (!empty($_FILES["image"]["name"])) {
@@ -47,16 +62,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if (!$error) {
         $stmt = $conn->prepare("
-            INSERT INTO recepten (titel, beschrijving, ingredienten, bereiding, afbeelding, likes, specialiteit)
-            VALUES (?, ?, ?, ?, ?, 0, 0)
+            INSERT INTO recepten (titel, beschrijving, ingredienten, bereiding, afbeelding, likes, specialiteit, user_id)
+            VALUES (?, ?, ?, ?, ?, 0, 0, ?)
         ");
 
-        $stmt->bind_param("sssss", $titel, $beschrijving, $ingredienten, $bereiding, $imagePath);
+        if (!$stmt) {
+            die("SQL fout: " . $conn->error);
+        }
+
+        $stmt->bind_param("sssssi", 
+            $titel, 
+            $beschrijving, 
+            $ingredienten, 
+            $bereiding, 
+            $imagePath, 
+            $user_id
+        );
 
         if ($stmt->execute()) {
             $success = "Recept succesvol toegevoegd!";
         } else {
-            $error = "Er ging iets mis. Probeer opnieuw.";
+            $error = "Database fout: " . $stmt->error;
         }
     }
 }
@@ -108,6 +134,5 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     Gemaakt door Tom, Luuk en Stef.
 </footer>
 
-<script src="script.js?v=1"></script>
 </body>
 </html>

@@ -23,7 +23,11 @@ CREATE TABLE recepten (
     afbeelding VARCHAR(255) DEFAULT NULL,
     likes INT DEFAULT 0,
     specialiteit TINYINT(1) DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    user_id INT DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_recept_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE SET NULL
 );
 
 -- ============================

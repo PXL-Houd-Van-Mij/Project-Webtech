@@ -28,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $hash = password_hash($password, PASSWORD_DEFAULT);
 
             $stmt = $conn->prepare("INSERT INTO users (email, password) VALUES (?, ?)");
-            $stmt->bind_param("s", $email, $hash);
+            $stmt->bind_param("ss", $email, $hash);
 
             if ($stmt->execute()) {
                 $success = "Account succesvol aangemaakt! Je kunt nu inloggen.";

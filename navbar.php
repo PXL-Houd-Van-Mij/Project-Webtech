@@ -15,7 +15,9 @@ if (!isset($_SESSION)) { session_start(); }
     <div class="nav-links">
         <a href="favorieten.php">Favorieten</a>
         <a href="specialiteiten.php">Specialiteiten</a>
+        <a href="videos.php">Video's</a>
         <a href="upload.php">Upload</a>
+        <a href="helpdesk.php">Helpdesk</a>
     </div>
 
     <!-- LOGIN / LOGOUT -->
