@@ -14,4 +14,4 @@ $stmt->execute();
 
 header("Location: recept.php?id=$id&reported=1");
 exit;
-// einde T
+// IOT
