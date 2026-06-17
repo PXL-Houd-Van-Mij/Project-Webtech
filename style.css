@@ -201,3 +201,179 @@ footer {
     font-size: 14px;
     border-top: 4px solid #ff8fcf;
 }
+
+/* RECIPE DETAIL */
+.recipe-detail {
+    max-width: 700px;
+    margin: 20px auto 40px;
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    border: 3px solid #ff8fcf;
+    box-shadow: 0 6px 0 #ffb7e0;
+}
+
+.recipe-image {
+    width: 100%;
+    border-radius: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 6px 0 #ffb7e0;
+}
+
+.recipe-subtitle {
+    margin-top: 20px;
+    margin-bottom: 5px;
+    color: #ff5fa2;
+}
+
+.recipe-uploader {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #777;
+}
+
+.recipe-info-box {
+    background: #ffe3f4;
+    border: 2px solid #ffb7e0;
+    border-radius: 14px;
+    padding: 15px;
+    margin-bottom: 20px;
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+/* TAGS / SPECIALITEITEN / INGREDIËNTEN */
+.tag-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.tag-check {
+    background: #ffe3f4;
+    padding: 6px 12px;
+    border-radius: 12px;
+    border: 2px solid #ff8fcf;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.tag-check input {
+    margin-right: 5px;
+}
+
+.tag-pill {
+    background: #ffb7e0;
+    padding: 6px 14px;
+    border-radius: 20px;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    box-shadow: 0 4px 0 #ff8fcf;
+    transition: 0.2s ease;
+    display: inline-block;
+}
+
+.tag-pill:hover {
+    transform: translateY(-3px);
+}
+
+/* ADMIN PANEL */
+.admin-container {
+    width: 90%;
+    margin: 30px auto;
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    border: 3px solid #ff8fcf;
+    box-shadow: 0 6px 0 #ffb7e0;
+}
+
+.dashboard {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.dash-card {
+    flex: 1;
+    min-width: 160px;
+    background: #ffe3f4;
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    font-size: 16px;
+    border: 3px solid #ff8fcf;
+    box-shadow: 0 4px 0 #ffb7e0;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 15px;
+}
+
+.admin-table th {
+    background: #ffb7e0;
+    color: white;
+    padding: 10px;
+    border-bottom: 4px solid #ff8fcf;
+    text-align: left;
+}
+
+.admin-table td {
+    background: white;
+    padding: 10px;
+    border-bottom: 2px solid #ffd6ef;
+}
+
+.admin-table tr:hover td {
+    background: #fff0fa;
+}
+
+.admin-btn {
+    padding: 6px 12px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    color: white;
+    display: inline-block;
+    margin-right: 5px;
+    font-size: 13px;
+}
+
+.admin-btn.view { background: #ff8fcf; }
+.admin-btn.edit { background: #5fa8ff; }
+.admin-btn.delete { background: #ff5f5f; }
+
+.admin-logout {
+    background: #ff5fa2;
+    padding: 8px 14px;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.admin-container input[type="text"],
+.admin-container select {
+    width: 250px;
+    padding: 8px;
+    border-radius: 10px;
+    border: 2px solid #ff8fcf;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.form-container select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    border: 2px solid #ff8fcf;
+    outline: none;
+    background: white;
+}

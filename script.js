@@ -64,13 +64,72 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (data.status === "liked") {
                     likeBtn.classList.add("active");
                     likeCount.textContent = (count + 1) + " likes";
-                } 
+                }
                 else if (data.status === "unliked") {
                     likeBtn.classList.remove("active");
                     likeCount.textContent = (count - 1) + " likes";
                 }
             });
         });
+    }
+
+    // DRAG & DROP + PREVIEW VOOR AFBEELDING UPLOAD
+    const dropZone = document.getElementById("drop-zone");
+    const fileInput = document.getElementById("fileInput");
+    const preview = document.getElementById("preview");
+
+    if (dropZone) {
+
+        dropZone.addEventListener("click", () => fileInput.click());
+
+        dropZone.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            dropZone.classList.add("dragover");
+        });
+
+        dropZone.addEventListener("dragleave", () => {
+            dropZone.classList.remove("dragover");
+        });
+
+        dropZone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            dropZone.classList.remove("dragover");
+            handleImage(e.dataTransfer.files[0]);
+        });
+
+        fileInput.addEventListener("change", () => {
+            handleImage(fileInput.files[0]);
+        });
+
+        function handleImage(file) {
+            if (!file || !file.type.startsWith("image/")) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.src = e.target.result;
+
+                img.onload = () => {
+                    const canvas = document.createElement("canvas");
+                    const ctx = canvas.getContext("2d");
+                    const maxWidth = 900;
+                    const scale = maxWidth / img.width;
+                    canvas.width = maxWidth;
+                    canvas.height = img.height * scale;
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                    canvas.toBlob((blob) => {
+                        const compressedFile = new File([blob], file.name, { type: "image/jpeg" });
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(compressedFile);
+                        fileInput.files = dataTransfer.files;
+                        preview.src = URL.createObjectURL(compressedFile);
+                        preview.style.display = "block";
+                    }, "image/jpeg", 0.7);
+                };
+            };
+            reader.readAsDataURL(file);
+        }
     }
 
 });

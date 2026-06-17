@@ -14,24 +14,27 @@ if (!isset($_SESSION["user"])) {
     exit;
 }
 
-// Haal user_id op via email uit sessie
+// User ID ophalen
 $userQuery = $conn->prepare("SELECT id FROM users WHERE email = ?");
 $userQuery->bind_param("s", $_SESSION["user"]);
 $userQuery->execute();
-$userResult = $userQuery->get_result();
-
-if ($userResult->num_rows === 0) {
-    die("Gebruiker niet gevonden.");
-}
-
-$user_id = $userResult->fetch_assoc()["id"];
+$user_id = $userQuery->get_result()->fetch_assoc()["id"];
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    $titel = trim($_POST["titel"]);
-    $beschrijving = trim($_POST["beschrijving"]);
-    $ingredienten = trim($_POST["ingredienten"]);
-    $bereiding = trim($_POST["bereiding"]);
+    $titel = trim($_POST["titel"] ?? "");
+    $beschrijving = trim($_POST["beschrijving"] ?? "");
+    $ingredienten = trim($_POST["ingredienten"] ?? "");
+    $bereiding = trim($_POST["bereiding"] ?? "");
+    $tijd = intval($_POST["tijd"] ?? 0);
+    $tools = trim($_POST["tools"] ?? "");
+    $personen = intval($_POST["personen"] ?? 0);
+
+    $tag_id = isset($_POST["tag"]) ? intval($_POST["tag"]) : null;
+
+    if ($tag_id === null) {
+        $error = "Je moet een tag selecteren.";
+    }
 
     // Afbeelding uploaden
     $imagePath = null;
@@ -39,9 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (!empty($_FILES["image"]["name"])) {
 
         $targetDir = "uploads/";
-        if (!is_dir($targetDir)) {
-            mkdir($targetDir, 0777, true);
-        }
+        if (!is_dir($targetDir)) mkdir($targetDir, 0777, true);
 
         $fileName = time() . "_" . basename($_FILES["image"]["name"]);
         $targetFile = $targetDir . $fileName;
@@ -61,25 +62,41 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     if (!$error) {
+
         $stmt = $conn->prepare("
-            INSERT INTO recepten (titel, beschrijving, ingredienten, bereiding, afbeelding, likes, specialiteit, user_id)
-            VALUES (?, ?, ?, ?, ?, 0, 0, ?)
+            INSERT INTO recepten
+            (titel, beschrijving, ingredienten, bereiding, afbeelding, tijd, tools, personen, likes, tag_id, user_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)
         ");
 
-        if (!$stmt) {
-            die("SQL fout: " . $conn->error);
-        }
-
-        $stmt->bind_param("sssssi", 
-            $titel, 
-            $beschrijving, 
-            $ingredienten, 
-            $bereiding, 
-            $imagePath, 
-            $user_id
+        $stmt->bind_param("sssssisiii",
+            $titel, $beschrijving, $ingredienten, $bereiding, $imagePath,
+            $tijd, $tools, $personen,
+            $tag_id, $user_id
         );
 
         if ($stmt->execute()) {
+
+            $recept_id = $stmt->insert_id;
+
+            // Specialiteiten opslaan
+            if (!empty($_POST["specialiteiten"])) {
+                foreach ($_POST["specialiteiten"] as $spec_id) {
+                    $ins = $conn->prepare("INSERT INTO recept_specialiteiten (recept_id, specialiteit_id) VALUES (?, ?)");
+                    $ins->bind_param("ii", $recept_id, $spec_id);
+                    $ins->execute();
+                }
+            }
+
+            // Subtags opslaan
+            if (!empty($_POST["subtags"])) {
+                foreach ($_POST["subtags"] as $subtag_id) {
+                    $ins = $conn->prepare("INSERT INTO recept_subtags (recept_id, subtag_id) VALUES (?, ?)");
+                    $ins->bind_param("ii", $recept_id, $subtag_id);
+                    $ins->execute();
+                }
+            }
+
             $success = "Recept succesvol toegevoegd!";
         } else {
             $error = "Database fout: " . $stmt->error;
@@ -87,14 +104,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recept Uploaden – Receptify</title>
-    <link rel="stylesheet" href="style.css?v=1">
+    <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 
@@ -104,13 +120,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <div class="form-container">
 
-    <?php if ($error): ?>
-        <p style="color:red; font-weight:600; margin-bottom:10px;"><?= $error ?></p>
-    <?php endif; ?>
-
-    <?php if ($success): ?>
-        <p style="color:green; font-weight:600; margin-bottom:10px;"><?= $success ?></p>
-    <?php endif; ?>
+    <?php if ($error): ?><p style="color:red; font-weight:600; margin-bottom:10px;"><?= htmlspecialchars($error) ?></p><?php endif; ?>
+    <?php if ($success): ?><p style="color:green; font-weight:600; margin-bottom:10px;"><?= htmlspecialchars($success) ?></p><?php endif; ?>
 
     <form method="POST" enctype="multipart/form-data">
 
@@ -122,7 +133,56 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         <textarea name="bereiding" placeholder="Bereiding (stappen)" rows="6" required></textarea>
 
-        <label style="font-weight:600; margin-bottom:5px; display:block;">Afbeelding (optioneel):</label>
+        <input type="number" name="tijd" placeholder="Tijd in minuten (bv. 30)" required>
+
+        <input type="text" name="tools" placeholder="Benodigde tools (bv. pan, oven)" required>
+
+        <input type="number" name="personen" placeholder="Aantal personen (bv. 4)" required>
+
+        <!-- TAGS -->
+        <label style="font-weight:600;">Tag (soort gerecht):</label>
+        <div class="tag-box">
+        <?php
+        $tags = $conn->query("SELECT * FROM tags ORDER BY naam ASC");
+        while ($t = $tags->fetch_assoc()):
+        ?>
+            <label class="tag-check">
+                <input type="radio" name="tag" value="<?= $t['id'] ?>" required>
+                <?= htmlspecialchars($t['naam'] ?? '') ?>
+            </label>
+        <?php endwhile; ?>
+        </div>
+
+        <!-- SPECIALITEITEN -->
+        <label style="font-weight:600;">Specialiteiten:</label>
+        <div class="tag-box">
+        <?php
+        $specs = $conn->query("SELECT * FROM specialiteiten ORDER BY naam ASC");
+        while ($s = $specs->fetch_assoc()):
+        ?>
+            <label class="tag-check">
+                <input type="checkbox" name="specialiteiten[]" value="<?= $s['id'] ?>">
+                <?= htmlspecialchars($s['naam'] ?? '') ?>
+            </label>
+        <?php endwhile; ?>
+        </div>
+
+        <!-- SUBTAGS / INGREDIËNTEN -->
+        <label style="font-weight:600;">Ingrediënten (selecteer):</label>
+        <div class="tag-box">
+        <?php
+        $subs = $conn->query("SELECT * FROM subtags ORDER BY naam ASC");
+        while ($sb = $subs->fetch_assoc()):
+        ?>
+            <label class="tag-check">
+                <input type="checkbox" name="subtags[]" value="<?= $sb['id'] ?>">
+                <?= htmlspecialchars($sb['naam'] ?? '') ?>
+            </label>
+        <?php endwhile; ?>
+        </div>
+
+        <!-- AFBEELDING -->
+        <label style="font-weight:600;">Afbeelding (optioneel):</label>
         <input type="file" name="image" accept="image/*">
 
         <button type="submit" class="btn" style="width:100%; margin-top:15px;">Recept Uploaden</button>
@@ -130,9 +190,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 </div>
 
-<footer>
-    Gemaakt door Tom, Luuk en Stef.
-</footer>
+<footer>Gemaakt door Tom, Luuk en Stef.</footer>
 
+<script src="script.js?v=2"></script>
 </body>
 </html>

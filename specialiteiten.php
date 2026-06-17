@@ -2,8 +2,17 @@
 session_start();
 require "db.php";
 
-// Specialiteiten ophalen (bijv. categorie = 'specialiteit')
-$q = mysqli_query($conn, "SELECT * FROM recepten WHERE specialiteit = 1 ORDER BY titel ASC");
+// Recepten ophalen die aan minstens één specialiteit gekoppeld zijn.
+// (Nieuw schema: koppeltabel recept_specialiteiten i.p.v. een 'specialiteit'-kolom.)
+$q = mysqli_query($conn, "
+    SELECT r.id, r.titel, r.beschrijving, r.likes,
+           GROUP_CONCAT(s.naam ORDER BY s.naam SEPARATOR ', ') AS specialiteiten
+    FROM recepten r
+    JOIN recept_specialiteiten rs ON rs.recept_id = r.id
+    JOIN specialiteiten s ON s.id = rs.specialiteit_id
+    GROUP BY r.id, r.titel, r.beschrijving, r.likes
+    ORDER BY r.titel ASC
+");
 ?>
 
 <!DOCTYPE html>
@@ -29,6 +38,7 @@ $q = mysqli_query($conn, "SELECT * FROM recepten WHERE specialiteit = 1 ORDER BY
         <div class="recipe-card">
             <h3><?= htmlspecialchars($row['titel']) ?></h3>
             <p><?= htmlspecialchars($row['beschrijving']) ?></p>
+            <p style="color:#ff5fa2; font-weight:600;"><?= htmlspecialchars($row['specialiteiten']) ?></p>
             <p class="likes">❤️ <?= $row['likes'] ?> likes</p>
             <a href="recept.php?id=<?= $row['id'] ?>" class="btn small">Bekijk recept</a>
         </div>

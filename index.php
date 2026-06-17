@@ -57,6 +57,6 @@ require "db.php";
     Gemaakt door Tom, Luuk en Stef.
 </footer>
 
-<script src="script.js?v=1"></script>
+<script src="script.js?v=2"></script>
 </body>
 </html>
