@@ -1,4 +1,4 @@
-Readme · MDCopyReceptify 🍳
+Readme · MDCopyReceptify 🍳
 
 Een receptenwebsite gebouwd voor het vak Webtechnologie aan PXL. Gebruikers kunnen recepten ontdekken, zelf recepten uploaden, favorieten bewaren, recepten liken en op tags/specialiteiten filteren. Daarnaast is er een admin-paneel voor beheer en een dagelijks wisselend "Recept van de dag".
 
