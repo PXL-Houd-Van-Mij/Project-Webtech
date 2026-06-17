@@ -11,9 +11,9 @@ $id = intval($_GET["id"]);
 
 // Recept ophalen
 $stmt = $conn->prepare("
-    SELECT r.*, u.email 
-    FROM recepten r 
-    LEFT JOIN users u ON r.user_id = u.id 
+    SELECT r.*, u.email
+    FROM recepten r
+    LEFT JOIN users u ON r.user_id = u.id
     WHERE r.id = ?
 ");
 $stmt->bind_param("i", $id);
@@ -48,7 +48,7 @@ if (!empty($recept["tag_id"])) {
 
 // Specialiteiten ophalen
 $specialiteiten = $conn->query("
-    SELECT s.naam 
+    SELECT s.naam
     FROM specialiteiten s
     JOIN recept_specialiteiten rs ON rs.specialiteit_id = s.id
     WHERE rs.recept_id = $id
@@ -56,32 +56,33 @@ $specialiteiten = $conn->query("
 
 // Subtags ophalen
 $subtags = $conn->query("
-    SELECT sb.naam 
+    SELECT sb.naam
     FROM subtags sb
     JOIN recept_subtags rs ON rs.subtag_id = sb.id
     WHERE rs.recept_id = $id
 ");
 
 // Check of user al geliked heeft
-$liked = false;
+$isFav = false;
 if (isset($_SESSION["user"])) {
     $l = $conn->prepare("
-        SELECT likes.id 
-        FROM likes 
+        SELECT likes.id
+        FROM likes
         JOIN users ON users.id = likes.user_id
         WHERE users.email = ? AND likes.recept_id = ?
     ");
     $l->bind_param("si", $_SESSION["user"], $id);
     $l->execute();
-    $liked = $l->get_result()->num_rows > 0;
+    $isFav = $l->get_result()->num_rows > 0;
 }
 ?>
 <!DOCTYPE html>
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($recept["titel"] ?? '') ?> – Receptify</title>
-    <link rel="stylesheet" href="style.css?v=103">
+    <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 
@@ -112,7 +113,7 @@ if (isset($_SESSION["user"])) {
         <?php endwhile; ?>
     </div>
 
-    <!-- SUBTAGS / INGREDIËNTEN -->
+    <!-- SUBTAGS / INGREDIËNTEN TAGS -->
     <h3 class="recipe-subtitle">Ingrediënten</h3>
     <div class="tag-box">
         <?php while ($sb = $subtags->fetch_assoc()): ?>
@@ -120,17 +121,22 @@ if (isset($_SESSION["user"])) {
         <?php endwhile; ?>
     </div>
 
-    <!-- LIKE -->
+    <!-- LIKE (AJAX) -->
     <div style="text-align:center; margin:15px 0;">
-        <form method="POST" action="like_toggle.php">
-            <input type="hidden" name="id" value="<?= $recept['id'] ?>">
-            <button type="submit" class="like-heart <?= $liked ? 'active' : '' ?>">
-                ❤️ <?= htmlspecialchars($recept["likes"] ?? 0) ?>
-            </button>
-        </form>
+        <div id="like-btn"
+             data-id="<?= $recept['id'] ?>"
+             class="like-heart <?= $isFav ? 'active' : '' ?>">
+            ❤️
+        </div>
+        <p id="like-count" style="font-weight:600;">
+            <?= htmlspecialchars($recept["likes"] ?? 0) ?> likes
+        </p>
     </div>
 
     <!-- RAPPORTEREN -->
+    <?php if (isset($_GET['reported'])): ?>
+        <p style="text-align:center; color:green;">Recept gerapporteerd.</p>
+    <?php endif; ?>
     <div style="text-align:center; margin-bottom:20px;">
         <form method="POST" action="report_recept.php">
             <input type="hidden" name="id" value="<?= $recept['id'] ?>">
@@ -146,6 +152,10 @@ if (isset($_SESSION["user"])) {
         <a href="edit_recept.php?id=<?= $recept['id'] ?>" class="btn small" style="background:#5fa8ff;">
             Recept bewerken
         </a>
+        <a href="delete_recept.php?id=<?= $recept['id'] ?>" class="btn small" style="background:#ff5f5f; margin-left:8px;"
+           onclick="return confirm('Recept verwijderen?');">
+            Verwijderen
+        </a>
     </div>
     <?php endif; ?>
 
@@ -155,11 +165,11 @@ if (isset($_SESSION["user"])) {
 
     <!-- INGREDIËNTEN (VOLLEDIGE LIJST) -->
     <h3 class="recipe-subtitle">Ingrediëntenlijst</h3>
-    <p><?= nl2br(htmlspecialchars($recept["ingredienten"] ?? '')) ?></p>
+    <p style="white-space:pre-line;"><?= htmlspecialchars($recept["ingredienten"] ?? '') ?></p>
 
     <!-- BEREIDING -->
     <h3 class="recipe-subtitle">Bereiding</h3>
-    <p><?= nl2br(htmlspecialchars($recept["bereiding"] ?? '')) ?></p>
+    <p style="white-space:pre-line;"><?= htmlspecialchars($recept["bereiding"] ?? '') ?></p>
 
     <!-- UPLOADER -->
     <p class="recipe-uploader">
@@ -172,6 +182,7 @@ if (isset($_SESSION["user"])) {
     Gemaakt door Tom, Luuk en Stef.
 </footer>
 
+<script src="script.js?v=2"></script>
 </body>
 </html>
-// einde T
+// IOT
