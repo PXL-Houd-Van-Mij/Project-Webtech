@@ -11,4 +11,4 @@ $conn->query("DELETE FROM specialiteiten WHERE id = $id");
 
 header("Location: admin_specialiteiten.php");
 exit;
-// einde T
+// IOT
