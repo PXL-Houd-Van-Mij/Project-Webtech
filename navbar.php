@@ -13,9 +13,15 @@ if (!isset($_SESSION)) { session_start(); }
 
     <!-- NAV LINKS -->
     <div class="nav-links">
+        <a href="recept_van_de_dag.php">Recept van de dag</a>
         <a href="favorieten.php">Favorieten</a>
         <a href="specialiteiten.php">Specialiteiten</a>
+        <a href="videos.php">Video's</a>
         <a href="upload.php">Upload</a>
+        <a href="helpdesk.php">Helpdesk</a>
+        <?php if (isset($_SESSION['user'])): ?>
+            <a href="profiel.php">Profiel</a>
+        <?php endif; ?>
     </div>
 
     <!-- LOGIN / LOGOUT -->
@@ -30,4 +36,4 @@ if (!isset($_SESSION)) { session_start(); }
     </div>
 
 </nav>
-// einde T
+// IOT
