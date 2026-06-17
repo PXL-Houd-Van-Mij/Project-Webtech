@@ -119,7 +119,7 @@ Admin-paneel voor het beheren van recepten, tags en rapportages
 
 👥 Gemaakt door
 
-Tom, Luuk en Stef — PXL, Bachelor Elektronica-ICT.
+Tom, Luuk en Stefan PXL, Bachelor Elektronica-ICT.
 
 📄 Licentie
 
